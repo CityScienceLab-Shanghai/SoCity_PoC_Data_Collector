@@ -41,13 +41,16 @@ const ButtonSet = ({setIsRecording}) => {
   );
 };
 
-const PickerList = () => {
-  const [selectedLanguage, setSelectedLanguage] = useState('3');
-
+const PickerList = ({label, setLabel, isRecording, updateSensorValues}) => {
   return (
     <Picker
-      selectedValue={selectedLanguage}
-      onValueChange={(itemValue, itemIndex) => setSelectedLanguage(itemValue)}>
+      selectedValue={label}
+      onValueChange={(itemValue, itemIndex) => {
+        if (!isRecording) {
+          setLabel(itemValue);
+          updateSensorValues('tag', itemValue);
+        }
+      }}>
       <Picker.Item label="Walk" value="1" />
       <Picker.Item label="Bike" value="2" />
       <Picker.Item label="Car" value="3" />
@@ -78,11 +81,13 @@ const App = () => {
   const [sensorValues, setSensorValues] = useState(initValues);
   const [isRecording, setIsRecording] = useState(false);
   const [time, setTime] = useState(Date.now());
+  const [label, setLabel] = useState('3');
+
   const endpoint = 'https://socitydao.media.mit.edu:1234/data';
 
   const updateSensorValues = (key, value) => {
-    setSensorValues((sensorValues) => ({...sensorValues, [key]: value}))
-  }
+    setSensorValues(sensorValues => ({...sensorValues, [key]: value}));
+  };
 
   useEffect(() => {
     const interval = setInterval(() => setTime(Date.now()), 1000);
@@ -113,7 +118,12 @@ const App = () => {
     <ScrollView>
       <Text style={styles.title}>SoCity DAO</Text>
       <Text style={styles.subtitle}>Data Collector</Text>
-      <PickerList />
+      <PickerList
+        label={label}
+        setLabel={setLabel}
+        isRecording={isRecording}
+        updateSensorValues={updateSensorValues}
+      />
       <ButtonSet setIsRecording={setIsRecording} />
       <Separator />
       {Object.entries(availableSensors).map(([name, values]) => (
