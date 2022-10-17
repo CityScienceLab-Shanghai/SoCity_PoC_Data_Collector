@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import * as Sensors from 'react-native-sensors';
+import NAME_TO_KEY from './data/name2key.json';
 
 const Value = ({name, value}) => (
   <View style={styles.valueContainer}>
@@ -9,7 +10,7 @@ const Value = ({name, value}) => (
   </View>
 );
 
-const SensorView = ({sensorName, values}) => {
+const SensorView = ({sensorName, values, updateSensorValues}) => {
   const sensor$ = Sensors[sensorName];
 
   const initialValue =
@@ -26,21 +27,34 @@ const SensorView = ({sensorName, values}) => {
     setSubscription(_subscription);
 
     return () => {
-      subscription.unsubscribe();
+      _subscription.unsubscribe();
       setSubscription(null);
     };
   }, []);
 
+  useEffect(() => {
+    values.map(valueName => {
+      // console.log(NAME_TO_KEY[sensorName + valueName], sensorValue[valueName]);
+      updateSensorValues(
+        NAME_TO_KEY[sensorName + valueName],
+        sensorValue[valueName],
+      );
+    });
+  }, [sensorValue]);
+
   return (
     <View style={styles.container}>
       <Text style={styles.headline}>{sensorName} values</Text>
-      {values.map(valueName => (
-        <Value
-          key={sensorName + valueName}
-          name={valueName}
-          value={sensorValue[valueName]}
-        />
-      ))}
+      {values.map(valueName => {
+        // console.log(sensorName + valueName);
+        return (
+          <Value
+            key={sensorName + valueName}
+            name={valueName}
+            value={sensorValue[valueName]}
+          />
+        );
+      })}
     </View>
   );
 };

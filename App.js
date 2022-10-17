@@ -80,6 +80,10 @@ const App = () => {
   const [time, setTime] = useState(Date.now());
   const endpoint = 'https://socitydao.media.mit.edu:1234/data';
 
+  const updateSensorValues = (key, value) => {
+    setSensorValues((sensorValues) => ({...sensorValues, [key]: value}))
+  }
+
   useEffect(() => {
     const interval = setInterval(() => setTime(Date.now()), 1000);
     return () => {
@@ -88,7 +92,7 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    if ((AppState.currentState === 'active') && (isRecording === true)) {
+    if (AppState.currentState === 'active' && isRecording === true) {
       // console.log(JSON.stringify(sensorValues))
       axios
         .post(endpoint, JSON.stringify(sensorValues), {
@@ -113,7 +117,13 @@ const App = () => {
       <ButtonSet setIsRecording={setIsRecording} />
       <Separator />
       {Object.entries(availableSensors).map(([name, values]) => (
-        <SensorView sensorName={name} values={values} key={name} />
+        <SensorView
+          sensorName={name}
+          values={values}
+          key={name}
+          updateSensorValues={updateSensorValues}
+          // time={time}
+        />
       ))}
     </ScrollView>
   );
