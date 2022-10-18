@@ -2,6 +2,7 @@
 import React, {useState, useEffect} from 'react';
 import {ScrollView, Text, StyleSheet, Button, View, Alert} from 'react-native';
 import SensorView from './SensorView';
+import LocationView from './LocationView';
 import {Picker} from '@react-native-picker/picker';
 import axios from 'axios';
 import {AppState} from 'react-native';
@@ -89,7 +90,7 @@ const App = () => {
   const [label, setLabel] = useState('3');
 
   const endpoint = 'https://socitydao.media.mit.edu:1234/data';
-  
+
   const updateSensorValues = (key, value) => {
     setSensorValues(sensorValues => ({...sensorValues, [key]: value}));
   };
@@ -124,7 +125,12 @@ const App = () => {
       <Text style={styles.title}>SoCity DAO</Text>
       <Text style={styles.subtitle}>Data Collector</Text>
       <Text style={styles.deviceID}>ID: {uniqueId}</Text>
-      <Text style={styles.statusText}>Status: {isRecording?'Recording':'Stopped'}</Text>
+      <Text
+        style={
+          isRecording ? styles.activeStatusText : styles.inActiveStatusText
+        }>
+        Status: {isRecording ? 'Recording' : 'Stopped'}
+      </Text>
       <PickerList
         label={label}
         setLabel={setLabel}
@@ -133,6 +139,11 @@ const App = () => {
       />
       <ButtonSet setIsRecording={setIsRecording} />
       <Separator />
+      <LocationView
+        time={time}
+        isRecording={isRecording}
+        updateSensorValues={updateSensorValues}
+      />
       {Object.entries(availableSensors).map(([name, values]) => (
         <SensorView
           sensorName={name}
@@ -166,10 +177,17 @@ const styles = StyleSheet.create({
     marginTop: 30,
     marginBottom: 10,
   },
-  statusText: {
+  activeStatusText: {
     fontSize: 15,
     textAlign: 'center',
     marginBottom: 10,
+    color: 'green',
+  },
+  inActiveStatusText: {
+    fontSize: 15,
+    textAlign: 'center',
+    marginBottom: 10,
+    color: 'red',
   },
   container: {
     flex: 1,
