@@ -6,6 +6,7 @@ import {Picker} from '@react-native-picker/picker';
 import axios from 'axios';
 import {AppState} from 'react-native';
 // import { useEffect } from 'react/cjs/react.production.min';
+import DeviceInfo from 'react-native-device-info';
 
 const axis = ['x', 'y', 'z'];
 
@@ -46,6 +47,7 @@ const PickerList = ({label, setLabel, isRecording, updateSensorValues}) => {
     <Picker
       selectedValue={label}
       onValueChange={(itemValue, itemIndex) => {
+        // console.log(DeviceInfo.getUniqueId());
         if (!isRecording) {
           setLabel(itemValue);
           updateSensorValues('tag', itemValue);
@@ -61,6 +63,9 @@ const PickerList = ({label, setLabel, isRecording, updateSensorValues}) => {
 };
 
 const App = () => {
+  var uniqueId = DeviceInfo.getDeviceId();
+  // updateSensorValues('id', uniqueId);
+
   const initValues = {
     acc_x: 2,
     acc_y: 0,
@@ -75,7 +80,7 @@ const App = () => {
     lon: 0,
     lat: 0,
     tag: 0,
-    id: 12345,
+    id: uniqueId,
   };
 
   const [sensorValues, setSensorValues] = useState(initValues);
@@ -84,7 +89,7 @@ const App = () => {
   const [label, setLabel] = useState('3');
 
   const endpoint = 'https://socitydao.media.mit.edu:1234/data';
-
+  
   const updateSensorValues = (key, value) => {
     setSensorValues(sensorValues => ({...sensorValues, [key]: value}));
   };
@@ -118,6 +123,8 @@ const App = () => {
     <ScrollView>
       <Text style={styles.title}>SoCity DAO</Text>
       <Text style={styles.subtitle}>Data Collector</Text>
+      <Text style={styles.deviceID}>ID: {uniqueId}</Text>
+      <Text style={styles.statusText}>Status: {isRecording?'Recording':'Stopped'}</Text>
       <PickerList
         label={label}
         setLabel={setLabel}
@@ -152,6 +159,17 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: -10,
     marginBottom: -20,
+  },
+  deviceID: {
+    fontSize: 15,
+    textAlign: 'center',
+    marginTop: 30,
+    marginBottom: 10,
+  },
+  statusText: {
+    fontSize: 15,
+    textAlign: 'center',
+    marginBottom: 10,
   },
   container: {
     flex: 1,
